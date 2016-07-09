@@ -29,11 +29,11 @@ def initialize():
 			
 			if(not st_neighbors.has_key(temp[0])):
 				st_neighbors[temp[0]] = []
-				st_sim[(temp[0],temp[0])] = 1
+			st_sim[(temp[0],temp[0])] = 1
 
-			if(not st_neighbors.has_key((temp[1],temp[2]))):	
+			if(not qs_neighbors.has_key((temp[1],temp[2]))):	
 				qs_neighbors[(temp[1],temp[2])] = []
-				st_sim[((temp[1],temp[2]),(temp[1],temp[2]))] = 1
+			qs_sim[((temp[1],temp[2]),(temp[1],temp[2]))] = 1
 
 			st_neighbors[temp[0]] = st_neighbors[temp[0]] + [(temp[1],temp[2])]
 			qs_neighbors[(temp[1],temp[2])] = qs_neighbors[(temp[1],temp[2])] + [temp[0]]
@@ -48,14 +48,21 @@ def initialize():
 def simqueryStudent(s1,s2,Converge):
 		if s1 == s2 : return 1;
 		tmp = Converge / (len(st_neighbors[s1]) * len(st_neighbors[s2]))
+
+		# print tmp
+		# print st_neighbors[s1]
+		# print st_neighbors[s2]
+
+		# if(not st_neighbors.has_key(s1) or not st_neighbors.has_key(s2)):
+		# 	return 0
+
 		simsum = 0
 		for nb1 in st_neighbors[s1]:
 				for nb2 in st_neighbors[s2]:
-					if st_sim.has_key((nb1,nb2)):
-						simsum = simsum + st_sim[(nb1,nb2)]
+					if qs_sim.has_key((nb1,nb2)):
+						simsum = simsum + qs_sim[(nb1,nb2)]
 
-		if(not qs_neighbors.has_key(s1) or not qs_neighbors.has_key(s2)):
-			return 0
+
 
 		return tmp * simsum 
 
@@ -64,17 +71,25 @@ def simqueryQStep(q1,q2,Converge):
 		tmp = Converge / (len(qs_neighbors[q1]) * len(qs_neighbors[q2]))
 		simsum = 0
 
-		if(not qs_neighbors.has_key(q1) or not qs_neighbors.has_key(q2)):
-			return 0
+		# print tmp
+		# print qs_neighbors[q1]
+		# print qs_neighbors[q2]
+
+		# if(not qs_neighbors.has_key(q1) or not qs_neighbors.has_key(q2)):
+		# 	return 0
 
 		for nb1 in qs_neighbors[q1]:
 				for nb2 in qs_neighbors[q2]:
-					if qs_sim.has_key((nb1,nb2)):
-						simsum = simsum + qs_sim[(nb1,nb2)]
+					if st_sim.has_key((nb1,nb2)):
+						simsum = simsum + st_sim[(nb1,nb2)]
 
 		return tmp * simsum 
 
-def simrank(C=0.6, times=10):
+def simrank(C=0.6, times=100):
+
+		global qs_sim
+		global st_sim
+
 		for q1 in qs_list:
 			for q2 in qs_list:
 				if(q1 == q2):
@@ -87,10 +102,13 @@ def simrank(C=0.6, times=10):
 				if(s1 == s2):
 					new_st_sim[(s1,s2)] = 1
 				else:
-					new_st_sim[(s1,s2)] = simqueryStudent(s1,s2,C)		
+					new_st_sim[(s1,s2)] = simqueryStudent(s1,s2,C)
 
-		# qs_sim = new_qs_sim
-		# st_sim = new_st_sim
+		# print new_st_sim
+		# print new_qs_sim		
+
+		qs_sim = new_qs_sim
+		st_sim = new_st_sim
 
 
 # def simqueryQStep():
@@ -99,13 +117,20 @@ def simrank(C=0.6, times=10):
 def main():
 	initialize()
 
+	# print qs_neighbors
+
+	# print qs_sim
+	# print simqueryStudent(1,2,0.8)
+	# print simqueryQStep((1,3),(4,1),0.8)
+
+
 	# print st_list
 	# print qs_list
 
 	simrank()
 
-	# print qs_sim
-	# print st_sim
+	print qs_sim
+	print st_sim
 
 	# print st_neighbors[1]
 
